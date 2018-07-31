@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# Test for OSPL_HOME env var, required for the script
+if [ -z "$OSPL_HOME" ]
+then
+  echo OpenSplice environment does not appear to be set up -- exiting
+  exit
+fi
+
+# Add the required jars to classpath
+CP=$OSPL_HOME/jar/dcpssaj.jar:./lib/solar_system.jar
+
+# Add DDS idl generated data classes/jars here
+CP=$CP:./lib/DDSSolarSystem.jar
+
+java -cp $CP orbisoftware.ddstools.spectrumddsmonitor.solarsystemdemo.SolarSystem

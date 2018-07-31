@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="build" name="spectrum">
+    <property environment="env"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
+    <property name="ospl" value="${env.OSPL_HOME}"/>
+    <path id="spectrum.classpath">
+        <pathelement location="bin"/>
+        <pathelement location="./lib/outline.jar"/>
+        <pathelement location="./lib/oric_rdsm.jar"/>
+        <pathelement location="./lib/gson-1.7.jar"/>        
+        <pathelement location="./lib/DDSSolarSystem.jar"/>
+        <pathelement location="${ospl}/jar/dcpssaj.jar"/>
+    </path>
+    <target name="init">
+        <mkdir dir="bin/orbisoftware/ddstools/spectrumddsmonitor/icons"/>
+        <copy includeemptydirs="false" todir="bin/orbisoftware/ddstools/spectrumddsmonitor/icons">
+            <fileset dir="src/orbisoftware/ddstools/spectrumddsmonitor/icons">
+                <include name="*.png"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="clean">
+        <delete dir="bin"/>
+        <delete file="./lib/spectrum.jar"/>
+    </target>
+    <target depends="build-project,dist" name="build"/>
+    <target depends="init" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
+            <src path="src"/>
+            <classpath refid="spectrum.classpath"/>
+        </javac>
+    </target>
+    <target name="spectrum">
+        <java classname="orbisoftware.ddstools.spectrumddsmonitor.SpectrumDDSMonitor" failonerror="true" fork="yes">
+            <classpath refid="spectrum.classpath"/>
+        </java>
+    </target>
+    <target name="dist" description="generate the jar file">
+        <jar jarfile="./lib/spectrum.jar" basedir="bin">
+        </jar>
+    </target>
+</project>

@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Test for OSPL_HOME env var, required for the script
+if [ -z "$OSPL_HOME" ]
+then
+  echo OpenSplice environment does not appear to be set up -- exiting
+  exit
+fi
+
+if [ ! -e logfiles ]; then
+  ln -s ../spectrum-eclipse-ws/logfiles .
+fi
+
+if [ ! -e URI_Manifest.txt ]; then
+  ln -s ../spectrum-eclipse-ws/URI_Manifest.txt .
+fi
+
+# Add the required jars to classpath
+CP=$OSPL_HOME/jar/dcpssaj.jar:./lib/sessionplayer.jar:./lib/outline.jar:./lib/gson-1.7.jar
+
+# Add DDS idl generated data classes/jars here
+CP=$CP:./lib/DDSSolarSystem.jar
+
+java -cp $CP orbisoftware.ddstools.sessionplayer.SessionPlayer
+

@@ -1,0 +1,62 @@
+#!/usr/bin/python
+
+# Format specified log directory xml files. 
+
+import os
+import signal
+import shutil
+import subprocess
+import sys
+
+rootDirectory = os.getcwd()
+logfilePath = rootDirectory + "/logfiles/"
+targetPid = 0
+
+def intSignalHandler(intSignal, frame):
+   os.kill(targetPid, signal.SIGKILL)
+   sys.exit(0)
+
+def formatdir(target):
+   
+   targetlogfiledir = logfilePath + target + "/"
+   print "\n" 
+   for xmlfile in os.listdir(targetlogfiledir):
+      if os.path.isfile(targetlogfiledir + xmlfile):
+         if xmlfile.endswith(".xml"):
+            print "Formatting: " + xmlfile
+            tempFile = targetlogfiledir + "_tmp_" + xmlfile
+            command = "xmllint --format " + targetlogfiledir + xmlfile + " > " + tempFile
+            p = subprocess.Popen(command, shell=True)
+            targetPid = p.pid
+            os.waitpid(targetPid, 0)[1]
+            shutil.copyfile(tempFile, targetlogfiledir + xmlfile)
+            os.remove(tempFile)
+
+def main():
+
+    signal.signal(signal.SIGINT, intSignalHandler)
+    
+    if not os.path.exists(logfilePath):
+        os.makedirs(logfilePath)
+
+    if len(sys.argv) == 2 and sys.argv[1] == "all":
+        for direntry in os.listdir(logfilePath):
+            if os.path.isdir(logfilePath + direntry):
+                print "\n" + "Formatting xml log directory: " + direntry
+                formatdir(direntry)
+        sys.exit()
+
+    if len(sys.argv) != 2 or \
+       not os.path.isdir(logfilePath + sys.argv[1]):
+           print "\nUsage: xml_formatter LOG_DIRECTORY\n"
+           print "Available log directories:"
+           print "all"
+           for direntry in os.listdir(logfilePath):
+               if os.path.isdir(logfilePath + direntry):
+                   print direntry
+    else:
+        formatdir(sys.argv[1])
+        
+if __name__=='__main__':
+
+    main()
